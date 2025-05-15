@@ -1,5 +1,5 @@
 import { ApplicationCommandOptionType, Client, CommandInteraction, MessageFlags } from 'discord.js';
-import { SlashCommand } from '../utils/index.js'; // Assuming SlashCommand type is defined here
+import { SlashCommand } from '../utils/index.js';
 import { exec as callbackExec } from 'child_process';
 import { promisify } from 'util';
 
@@ -19,7 +19,7 @@ async function sendSplittableOutput(
     if (fullMessage.length <= 2000) {
         await interaction.editReply({
             content: fullMessage,
-            flags: isEphemeral ? MessageFlags.Ephemeral : undefined,
+            flags: isEphemeral ? MessageFlags.Ephemeral as unknown as BitFieldResolvable<"SuppressEmbeds", MessageFlags.SuppressEmbeds> : undefined,
         });
     } else {
         // Send first part
