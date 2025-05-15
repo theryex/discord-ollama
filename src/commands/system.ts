@@ -19,7 +19,7 @@ async function sendSplittableOutput(
     if (fullMessage.length <= 2000) {
         await interaction.editReply({
             content: fullMessage,
-            flags: isEphemeral ? MessageFlags.Ephemeral : undefined,
+            ephemeral: isEphemeral,
         });
     } else {
         // Send first part
