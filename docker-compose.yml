@@ -3,39 +3,39 @@ version: '3.8'
 
 services:
   discord:
-    build: ./
-    image: kevinthedang/discord-ollama:0.8.4
+    build: ./                     # Assuming you have a Dockerfile in the current directory
+    # image: kevinthedang/discord-ollama:0.8.4 # If building locally, 'image' is more of a fallback/name tag
     container_name: discord_bot_multi_net
     restart: always
     environment:
       CLIENT_TOKEN: ${CLIENT_TOKEN}
       MODEL: ${MODEL}
-      OLLAMA_IP: ${OLLAMA_IP}     # Will be 172.24.0.2
-      OLLAMA_PORT: ${OLLAMA_PORT} # 11434
-      REDIS_IP: ${REDIS_IP}       # Will be 172.25.0.2
-      REDIS_PORT: ${REDIS_PORT}   # 6379
+      OLLAMA_IP: ${OLLAMA_IP}
+      OLLAMA_PORT: ${OLLAMA_PORT}
+      REDIS_IP: ${REDIS_IP}
+      REDIS_PORT: ${REDIS_PORT}
     networks:
-      - ollama_network_on_compose  # Alias for ollama's network
-      - redis_network_on_compose   # Alias for redis's network
+      - ollama_network_on_compose
+      - redis_network_on_compose
     volumes:
-      - discord_bot_data:/src/app # Ensure this path is correct for the image
+      - discord_bot_data:/src/app       # Named volume mount
+      - /var/run/utmp:/var/run/utmp:ro  # Bind mount for /users command
     deploy:
       resources:
         reservations:
           devices:
             - driver: nvidia
-              count: all # Or specific GPU IDs
-              capabilities: [gpu, utility] # 'utility' is needed for nvidia-smi
+              count: all
+              capabilities: [gpu, utility]
 
 networks:
-  ollama_network_on_compose: # Alias used in the services section for ollama's network
+  ollama_network_on_compose:
     external: true
-    name: self-hosted-ai-starter-kit_demo # <<< ACTUAL NAME of ollama's network
+    name: self-hosted-ai-starter-kit_demo
 
-  redis_network_on_compose:  # Alias used in the services section for redis's network
+  redis_network_on_compose:
     external: true
-    name: n8n-ollama-agents_bridge # <<< ACTUAL NAME of redis's network
+    name: n8n-ollama-agents_bridge
 
 volumes:
-  discord_bot_data:
-  - /var/run/utmp:/var/run/utmp:ro # This is needed for /users to run.
+  discord_bot_data: 
