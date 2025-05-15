@@ -5,6 +5,7 @@ import {
     openConfig, UserConfig, getAttachmentData, getTextFileAttachmentData
 } from '../utils/index.js'
 import { getEnvVar } from '../utils/env.js'
+import { readFileSync } from 'fs'
 
 /** 
  * Max Message length for free users is 2000 characters (bot or not).
@@ -156,9 +157,12 @@ export default event(Events.MessageCreate, async ({ log, msgHist, ollama, client
         msgHist.setQueue(chatMessages)
 
         // --- PRE-PROMPT SYSTEM MESSAGE (sets the tone for the bot) ---
-        // You can set your pre-prompt here. Example:
-        // Uses getEnvVar utility for cross-platform env access
-        const prePrompt = getEnvVar('PRE_PROMPT') || ''
+        let prePrompt = ''
+        try {
+            prePrompt = readFileSync('preprompt.txt', 'utf-8').trim()
+        } catch (e) {
+            log('Warning: preprompt.txt not found or unreadable. No pre-prompt will be used.')
+        }
         if (prePrompt && (msgHist.size() === 0 || msgHist.getItems()[0].role !== 'system')) {
             msgHist.enqueue({
                 role: 'system',
