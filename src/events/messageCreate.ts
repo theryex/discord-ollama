@@ -4,6 +4,7 @@ import {
     getChannelInfo, getServerConfig, getUserConfig, openChannelInfo,
     openConfig, UserConfig, getAttachmentData, getTextFileAttachmentData
 } from '../utils/index.js'
+import { getEnvVar } from '../utils/env.js'
 
 /** 
  * Max Message length for free users is 2000 characters (bot or not).
@@ -153,6 +154,19 @@ export default event(Events.MessageCreate, async ({ log, msgHist, ollama, client
 
         // set up new queue
         msgHist.setQueue(chatMessages)
+
+        // --- PRE-PROMPT SYSTEM MESSAGE (sets the tone for the bot) ---
+        // You can set your pre-prompt here. Example:
+        // Uses getEnvVar utility for cross-platform env access
+        const prePrompt = getEnvVar('PRE_PROMPT') || ''
+        if (prePrompt && (msgHist.size() === 0 || msgHist.getItems()[0].role !== 'system')) {
+            msgHist.enqueue({
+                role: 'system',
+                content: prePrompt,
+                images: []
+            })
+        }
+        // ------------------------------------------------------------
 
         // check if we can push, if not, remove oldest
         while (msgHist.size() >= msgHist.capacity) msgHist.dequeue()

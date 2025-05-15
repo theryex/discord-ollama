@@ -9,7 +9,7 @@ export default event(Events.ClientReady, ({ log }, client) => {
 
     // set status of the bot
     client.user.setActivity({
-        name: 'Powered by Ollama',
+        name: 'I teh Floppa! >:3',
         type: ActivityType.Custom
     })
 
