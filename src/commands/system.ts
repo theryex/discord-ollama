@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, Client, CommandInteraction, MessageFlags } from 'discord.js';
+import { ApplicationCommandOptionType, Client, CommandInteraction, MessageFlags, BitFieldResolvable } from 'discord.js';
 import { SlashCommand } from '../utils/index.js';
 import { exec as callbackExec } from 'child_process';
 import { promisify } from 'util';
@@ -19,7 +19,7 @@ async function sendSplittableOutput(
     if (fullMessage.length <= 2000) {
         await interaction.editReply({
             content: fullMessage,
-            flags: isEphemeral ? MessageFlags.Ephemeral as unknown as BitFieldResolvable<"SuppressEmbeds", MessageFlags.SuppressEmbeds> : undefined,
+            flags: isEphemeral ? MessageFlags.Ephemeral : undefined,
         });
     } else {
         // Send first part
@@ -89,9 +89,9 @@ export const GpuInfo: SlashCommand = {
                     });
                 }
             }
-        } catch (error: any) {
-            console.error('Error executing nvidia-smi:', error);
-            const errorMessage = error.stderr || error.message || 'An unknown error occurred.';
+        } catch (err: any) {
+            console.error('Error executing nvidia-smi:', err);
+            const errorMessage = err.stderr || err.message || 'An unknown error occurred.';
             await interaction.editReply({
                 content: `Error retrieving GPU info:\n\`\`\`\n${errorMessage.slice(0,1900)}\n\`\`\``,
             });
@@ -110,7 +110,7 @@ export const Users: SlashCommand = { // Renamed from SshClients to Users to matc
         try {
             const { stdout, stderr } = await exec('who');
 
-            if (error && !stdout) { // If only stderr has content, it might be an error/warning
+            if (stderr && !stdout) { // If only stderr has content, it might be an error/warning
                 await interaction.editReply({
                     content: `Could not retrieve full user info. Output (stderr):\n\`\`\`\n${stderr.slice(0,1900)}\n\`\`\``,
                 });
