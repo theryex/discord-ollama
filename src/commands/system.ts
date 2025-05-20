@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, Client, CommandInteraction, PermissionsBitField } from 'discord.js';
+import { ApplicationCommandOptionType, Client, CommandInteraction, PermissionsBitField, MessageFlags } from 'discord.js';
 import { SlashCommand } from '../utils/index.js';
 import * as fs from 'fs/promises';
 
@@ -14,7 +14,7 @@ export const SetPreprompt: SlashCommand = {
         },
     ],
     run: async (client: Client, interaction: CommandInteraction) => {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
             await interaction.editReply({
@@ -44,7 +44,7 @@ export const ViewPreprompt: SlashCommand = {
     description: 'Displays the current pre-prompt configuration.',
     defaultMemberPermissions: PermissionsBitField.Flags.Administrator,
     run: async (client: Client, interaction: CommandInteraction) => {
-        await interaction.deferReply({ ephemeral: true }); // Ephemeral for admin-only view
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral }); // Ephemeral for admin-only view
 
         try {
             const prepromptContent = await fs.readFile('preprompt.txt', 'utf-8');
