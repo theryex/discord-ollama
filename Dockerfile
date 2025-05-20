@@ -8,6 +8,7 @@ WORKDIR /app
 COPY ./src ./src
 COPY ./*.json ./
 COPY ./.env ./
+COPY preprompt.txt ./
 
 # install dependencies, breaks
 RUN npm install
