@@ -1,7 +1,8 @@
 import { SlashCommand } from '../utils/commands.js';
 import { Client, CommandInteraction, EmbedBuilder, MessageFlags } from 'discord.js';
 import { getEnvVar } from '../utils/env.js';
-import { getUserConfig, UserConfig } from '../utils/handlers/configHandler.js';
+import { getUserConfig } from '../utils/handlers/configHandler.js';
+import { UserConfig } from '../utils/index.js'; // Corrected path for UserConfig
 import fs from 'fs';
 import path from 'path';
 
