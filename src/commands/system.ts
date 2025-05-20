@@ -1,6 +1,7 @@
-import { ApplicationCommandOptionType, Client, CommandInteraction } from 'discord.js';
+import { ApplicationCommandOptionType, Client, CommandInteraction, PermissionsBitField } from 'discord.js';
 import { SlashCommand } from '../utils/index.js';
 import { exec as callbackExec } from 'child_process';
+import * as fs from 'fs/promises';
 import { promisify } from 'util';
 
 const exec = promisify(callbackExec);
@@ -49,6 +50,43 @@ export const GpuInfo: SlashCommand = {
         } catch (err: any) {
             const errorMessage = err.stderr || err.message || 'An unknown error occurred.';
             await sendSplittableOutput(interaction, 'Error retrieving GPU info:', errorMessage);
+        }
+    },
+};
+
+export const SetPreprompt: SlashCommand = {
+    name: 'set-preprompt',
+    description: "Sets the bot's pre-prompt. Admin only.",
+    options: [
+        {
+            name: 'preprompt',
+            description: 'The new pre-prompt content.',
+            type: ApplicationCommandOptionType.String,
+            required: true,
+        },
+    ],
+    run: async (client: Client, interaction: CommandInteraction) => {
+        await interaction.deferReply({ ephemeral: true });
+
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
+            await interaction.editReply({
+                content: 'You do not have permission to use this command. Admin only.',
+            });
+            return;
+        }
+
+        const preprompt = interaction.options.get('preprompt')?.value as string;
+
+        try {
+            await fs.writeFile('src/preprompt.txt', preprompt);
+            await interaction.editReply({
+                content: 'Pre-prompt updated successfully.',
+            });
+        } catch (error) {
+            console.error('Error writing preprompt file:', error);
+            await interaction.editReply({
+                content: 'Failed to update pre-prompt. Check bot logs for details.',
+            });
         }
     },
 };
