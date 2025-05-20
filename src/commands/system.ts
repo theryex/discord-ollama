@@ -78,7 +78,7 @@ export const SetPreprompt: SlashCommand = {
         const preprompt = interaction.options.get('preprompt')?.value as string;
 
         try {
-            await fs.writeFile('src/preprompt.txt', preprompt);
+            await fs.writeFile('preprompt.txt', preprompt);
             await interaction.editReply({
                 content: 'Pre-prompt updated successfully.',
             });
