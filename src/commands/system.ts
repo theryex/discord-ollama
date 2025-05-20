@@ -40,6 +40,7 @@ async function sendSplittableOutput(
 export const GpuInfo: SlashCommand = {
     name: 'gpuinfo',
     description: 'Displays GPU information using nvidia-smi.',
+    defaultMemberPermissions: PermissionsBitField.Flags.Administrator,
     options: [],
     run: async (client: Client, interaction: CommandInteraction) => {
         await interaction.deferReply();
@@ -94,6 +95,7 @@ export const SetPreprompt: SlashCommand = {
 export const Users: SlashCommand = {
     name: 'users',
     description: 'Lists active users connected to the server (via TTY/PTS).',
+    defaultMemberPermissions: PermissionsBitField.Flags.Administrator,
     options: [],
     run: async (client: Client, interaction: CommandInteraction) => {
         await interaction.deferReply();
