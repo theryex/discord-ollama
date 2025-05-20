@@ -9,7 +9,8 @@ import { ClearUserChannelHistory } from './cleanUserChannelHistory.js'
 import { PullModel } from './pullModel.js'
 import { SwitchModel } from './switchModel.js'
 import { DeleteModel } from './deleteModel.js'
-import { SetPreprompt, GpuInfo, Users } from './system.js'
+import { SetPreprompt, ViewPreprompt } from './system.js'
+import { ListModels } from './ollamaCommands.js'
 
 export default [
     ThreadCreate,
@@ -23,6 +24,6 @@ export default [
     SwitchModel,
     DeleteModel,
     SetPreprompt,
-    GpuInfo,
-    Users
+    ViewPreprompt,
+    ListModels
 ] as SlashCommand[]
