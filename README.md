@@ -65,3 +65,28 @@ These are guides to the features and capabilities of this app.
 * [Jonathan Smoley](https://github.com/JT2M0L3Y)
 
 [discord-ollama](https://github.com/kevinthedang/discord-ollama) © 2023 by [Kevin Dang](https://github.com/kevinthedang) is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+
+
+## Acknowledgements
+
+A special thank you to **kevinthedang** for the original `discord-ollama` project, which provided an excellent foundation for these enhancements.
+
+Recent updates include:
+
+*   **Added Features:**
+    *   `/listmodels` command to display available Ollama models.
+    *   `/activemodel` command to show the user's currently selected model.
+    *   `/viewprompt` command for administrators to view the current system preprompt.
+    *   `/set-preprompt` command for runtime editing of the bot's persona.
+*   **Key Bug Fixes & Improvements:**
+    *   Resolved Docker networking issues for Ollama communication.
+    *   Corrected environment variable validation (e.g., `OLLAMA_IP`).
+    *   Addressed command registration problems and Discord API deprecations.
+    *   Fixed TypeScript type import errors and other build issues.
+    *   Streamlined command definitions and structure.
+
+And a huge thank you to Google and their AI assistant, Jules.
+
+Jules played a significant role in developing these features, troubleshooting complex issues, and implementing fixes, demonstrating capabilities in understanding code, making targeted changes, debugging, and assisting with software development tasks by leveraging a suite of tools to interact with the codebase.
+I primarly wanted to make some changes to the bot myself, and got invited to test Jules out. It was extremely easy to use, and enabled more progress in two days than I'd be able to make in a month.
+So all the changes I've made were mostly just testing the capibilities of Jules.

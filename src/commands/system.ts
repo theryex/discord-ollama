@@ -1,81 +1,91 @@
-import { ApplicationCommandOptionType, Client, CommandInteraction } from 'discord.js';
+import { ApplicationCommandOptionType, Client, CommandInteraction, PermissionsBitField, MessageFlags } from 'discord.js';
 import { SlashCommand } from '../utils/index.js';
-import { exec as callbackExec } from 'child_process';
-import { promisify } from 'util';
+import * as fs from 'fs/promises';
 
-const exec = promisify(callbackExec);
-
-// Helper function to send output, splitting if necessary
-async function sendSplittableOutput(
-    interaction: CommandInteraction,
-    baseContent: string,
-    output: string
-) {
-    const MAX_CONTENT_LENGTH = 1980;
-    const formattedOutput = '```\n' + output + '\n```';
-    const fullMessage = baseContent ? `${baseContent}\n${formattedOutput}` : formattedOutput;
-
-    if (fullMessage.length <= 2000) {
-        await interaction.editReply({
-            content: fullMessage,
-        });
-    } else {
-        let firstPart = output.slice(0, MAX_CONTENT_LENGTH);
-        await interaction.editReply({
-            content: (baseContent ? `${baseContent}\n` : '') + '```\n' + firstPart + '\n```',
-        });
-        let remainingOutput = output.slice(firstPart.length);
-        if (remainingOutput.trim().length > 0) {
-            if (remainingOutput.length > MAX_CONTENT_LENGTH) {
-                remainingOutput = remainingOutput.slice(0, MAX_CONTENT_LENGTH - 7) + "\n... (output truncated)";
-            }
-            await interaction.followUp({
-                content: '```\n' + remainingOutput + '\n```',
-            });
-        }
-    }
-}
-
-export const GpuInfo: SlashCommand = {
-    name: 'gpuinfo',
-    description: 'Displays GPU information using nvidia-smi.',
-    options: [],
+export const SetPreprompt: SlashCommand = {
+    name: 'set-preprompt',
+    description: "Sets the bot's pre-prompt. Admin only.",
+    options: [
+        {
+            name: 'preprompt',
+            description: 'The new pre-prompt content.',
+            type: ApplicationCommandOptionType.String,
+            required: true,
+        },
+    ],
     run: async (client: Client, interaction: CommandInteraction) => {
-        await interaction.deferReply();
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.Administrator)) {
+            await interaction.editReply({
+                content: 'You do not have permission to use this command. Admin only.',
+            });
+            return;
+        }
+
+        const preprompt = interaction.options.get('preprompt')?.value as string;
+
         try {
-            const { stdout, stderr } = await exec('nvidia-smi');
-            const output = stdout || stderr || 'No output.';
-            await sendSplittableOutput(interaction, '', output);
-        } catch (err: any) {
-            const errorMessage = err.stderr || err.message || 'An unknown error occurred.';
-            await sendSplittableOutput(interaction, 'Error retrieving GPU info:', errorMessage);
+            await fs.writeFile('preprompt.txt', preprompt);
+            await interaction.editReply({
+                content: 'Pre-prompt updated successfully.',
+            });
+        } catch (error) {
+            console.error('Error writing preprompt file:', error);
+            await interaction.editReply({
+                content: 'Failed to update pre-prompt. Check bot logs for details.',
+            });
         }
     },
 };
 
-export const Users: SlashCommand = {
-    name: 'users',
-    description: 'Lists active users connected to the server (via TTY/PTS).',
-    options: [],
+export const ViewPreprompt: SlashCommand = {
+    name: 'viewprompt',
+    description: 'Displays the current pre-prompt configuration.',
+    defaultMemberPermissions: PermissionsBitField.Flags.Administrator,
     run: async (client: Client, interaction: CommandInteraction) => {
-        await interaction.deferReply();
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral }); // Ephemeral for admin-only view
+
         try {
-            const { stdout, stderr } = await exec('who');
-            const lines = stdout.trim().split('\n');
-            const activeUserLines = lines.filter((line: string) => line.includes('pts/') || line.includes('tty'));
-            let outputMessage: string;
-            if (activeUserLines.length > 0) {
-                outputMessage = activeUserLines.join('\n');
+            const prepromptContent = await fs.readFile('preprompt.txt', 'utf-8');
+            
+            if (!prepromptContent.trim()) {
+                await interaction.editReply('The preprompt file is currently empty.');
+                return;
+            }
+
+            // Discord message content limit is 2000 characters.
+            // Code blocks add ```
+// ...
+// ``` (7 chars) or ```lang
+// ...
+// ``` (9+ chars)
+            // Aim for slightly less than 2000 for the content itself.
+            const maxLength = 1980; 
+            let replyContent = 'Current `preprompt.txt` content:\n```\n';
+            replyContent += prepromptContent;
+            replyContent += '\n```';
+
+            if (replyContent.length > 2000) {
+                // If too long, send as an attachment or truncate.
+                // For simplicity here, we'll try to send a truncated message first.
+                // A more robust solution might use pagination or file attachments for very long prompts.
+                const truncatedContent = prepromptContent.substring(0, maxLength - 50); // Reserve space for message and code block
+                replyContent = 'Current `preprompt.txt` content (truncated):\n```\n' + truncatedContent + '\n... (prompt truncated)\n```';
+                // Alternative for very long: send as file if possible, or indicate it's too long to display directly.
+                // For now, this will at least show something.
+                 await interaction.editReply(replyContent);
             } else {
-                outputMessage = 'No active user sessions found (via TTY/PTS).';
+                 await interaction.editReply(replyContent);
             }
-            if (outputMessage.length > 1950) {
-                outputMessage = outputMessage.substring(0, 1950) + "\n... (output truncated)";
+
+        } catch (error: any) {
+            if (error.code === 'ENOENT') {
+                await interaction.editReply('The `preprompt.txt` file was not found.');
+            } else {
+                console.error('Error reading preprompt file:', error);
+                await interaction.editReply('Failed to read the preprompt file.');
             }
-            await sendSplittableOutput(interaction, '', outputMessage);
-        } catch (err: any) {
-            const errorMessage = err.stderr || err.message || 'An unknown error occurred.';
-            await sendSplittableOutput(interaction, 'Error retrieving user list:', errorMessage);
         }
     },
 };
