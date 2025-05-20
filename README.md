@@ -88,3 +88,5 @@ Recent updates include:
 And a huge thank you to Google and their AI assistant, Jules.
 
 Jules played a significant role in developing these features, troubleshooting complex issues, and implementing fixes, demonstrating capabilities in understanding code, making targeted changes, debugging, and assisting with software development tasks by leveraging a suite of tools to interact with the codebase.
+I primarly wanted to make some changes to the bot myself, and got invited to test Jules out. It was extremely easy to use, and enabled more progress in two days than I'd be able to make in a month.
+So all the changes I've made were mostly just testing the capibilities of Jules.
